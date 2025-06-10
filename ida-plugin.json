@@ -1,0 +1,12 @@
+{
+  "IDAMetadataDescriptorVersion": 1,
+  "plugin": {
+    "name": "HappyIDA",
+    "entryPoint": "HappyIDA.py",
+    "categories": ["api-scripting-and-automation"],
+    "logoPath": "logo.png",
+    "idaVersions": ">=7.4",
+    "description" : "Make your IDA Happy!",
+    "version": "0.0.9"
+  }
+}
