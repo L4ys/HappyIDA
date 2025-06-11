@@ -43,7 +43,7 @@ def tag_text(text, tag):
     FMT = '%c%c%' + '0%dX' % ida_lines.COLOR_ADDR_SIZE + '%s'
     return FMT % (ida_lines.COLOR_ON, ida_lines.COLOR_ADDR, tag, text)
 
-class HexraysFuncLabelHooks(ida_hexrays.Hexrays_Hooks):
+class HexraysFuncLabelHook(ida_hexrays.Hexrays_Hooks):
     def __init__(self):
         super().__init__()
 
@@ -881,7 +881,7 @@ class HappyIDAPlugin(idaapi.plugin_t):
                 HexraysParamLabelHook(),
                 HexraysRustStringHook(),
                 HexraysDoubleClickHook(),
-                HexraysFuncLabelHooks()
+                HexraysFuncLabelHook()
             ]
             for hook in self.hx_hooks:
                 hook.hook()
