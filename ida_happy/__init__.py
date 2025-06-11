@@ -376,16 +376,12 @@ class HexraysDoubleClickHook(ida_hexrays.Hexrays_Hooks):
                     idc.jumpto(addr)
                     return HandleStatus.HANDLED
                 else:
-                    func_names = [ idc.get_func_name(f) for f in idautils.Functions() ]
-                    matches = []
+                    funcs = [ (ea, idc.get_name(ea, idc.GN_VISIBLE | idc.GN_DEMANGLED)) for ea in idautils.Functions() ]
                     #TODO: user can limit output size
-                    #TODO: make this fuzzy search, like std::vector will also match std::__1::vector
-                    for func_name in func_names:
-                        dename = idc.demangle_name(func_name, idc.get_inf_attr(idc.INF_LONG_DN))
-                        if name in func_name or (dename is not None and name in dename):
-                            matches.append((dename, func_name))
+                    #TODO: make this fuzzy search, like abc::vector will also match bac::cde::vector
+                    matches = [ pair for pair in funcs if name in pair[1] ]
                     if matches:
-                        items = [(dename, "%08X" % idc.get_name_ea_simple(func_name)) for (dename,func_name) in matches]
+                        items = [(func_name, "%08X" % ea) for (ea ,func_name) in matches]
                         cols = [
                             ["Name",    40 | idaapi.Choose.CHCOL_PLAIN],
                             ["Address", 16 | idaapi.Choose.CHCOL_HEX],
