@@ -1,16 +1,21 @@
 import idaapi
 import ida_hexrays
+import ida_kernwin
 import ida_tryblks
 import ida_range
+from ida_happy.miscutils import info, error
 
 class HexraysRebuildSEHHook(ida_hexrays.Hexrays_Hooks):
     """rebuild the missing SEH try except statements"""
     def __init__(self):
         super().__init__()
         self.seh_list = []
+        self.banned_set = set()
+        self.notify_user = False
 
     def prolog(self, mba, fc, reachable_blocks, decomp_flags):
         self.seh_list = []
+        self.notify_user = False
         self.gather_seh_info(mba, reachable_blocks)
         return 0
 
@@ -25,6 +30,9 @@ class HexraysRebuildSEHHook(ida_hexrays.Hexrays_Hooks):
 
     def func_printed(self, cfunc):
         self.annotate_seh(cfunc)
+
+        if self.notify_user:
+            ida_kernwin.warning('Unable to correctly decompile some try blocks, press "F5" again to resolve it.')
         return 0
 
     def gather_seh_info(self, mba, reachable_blocks):
@@ -48,6 +56,10 @@ class HexraysRebuildSEHHook(ida_hexrays.Hexrays_Hooks):
             try_start = rge.start_ea
             try_end = rge.end_ea
 
+            if try_start in self.banned_set:
+                info(f'ignore try block @ {hex(try_start)}')
+                continue
+
             # some unreachable catch blocks never be included in the microcode block list,
             # not all because it's judged by bitmap
             # add it back here
@@ -56,7 +68,7 @@ class HexraysRebuildSEHHook(ida_hexrays.Hexrays_Hooks):
                 # NOTE: the const 25 here just somehow guessed, does not reference any public hexrays docs
                 block_bit = ((eh.start_ea - mba.entry_ea) // 25) + 1
                 if not reachable_blocks.has(block_bit):
-                    print('encounter not generated eh block at', hex(eh.start_ea))
+                    info(f'encounter not generated eh block @ {hex(eh.start_ea)}')
                     reachable_blocks.add(block_bit)
 
                 eh_start_list.append(eh.start_ea)
@@ -131,6 +143,9 @@ class HexraysRebuildSEHHook(ida_hexrays.Hexrays_Hooks):
         # { ... try block }
         # { ... except block }
         # ```
+        # TODO: control flow can actually jump between different try block region,
+        # so each block in the try block should be handled differently.
+        # currently I have no idea to resolve this...
         body = cfunc.body
         insn_map = {}
         # find_closest_addr and find_parent_of will re-iterate the ctree,
@@ -155,11 +170,14 @@ class HexraysRebuildSEHHook(ida_hexrays.Hexrays_Hooks):
                     break
                 it = body.find_parent_of(it)
             else:
-                raise Exception('Failed to find valid catch block')
+                self.notify_user = True
+                self.banned_set.add(try_start)
+                error(f'Failed to find valid catch block @ {hex(try_start)}')
+                continue
 
             cur_insn = it.cinsn
             cif = cur_insn.cif
-            # NOTE: should we consider the inverted case? (if (![0x41414141]){...})
+            # TODO: we *should* consider the inverted case (if (![0x41414141]){...})
             # if else branch exists, move the contents (contains try, and maybe other blocks) out of the if block
             if cif.ielse:
                 else_block = cif.ielse.cblock
@@ -216,6 +234,10 @@ class HexraysRebuildSEHHook(ida_hexrays.Hexrays_Hooks):
         # the second search will yield the actual try block (currently just an expr),
         # since we just delete the preceding if statement
         for try_start, try_end, eh_start in self.seh_list:
+            # TODO: should remove this after the issue resolved
+            if try_start not in insn_map:
+                continue
+
             # find the start expr of the new try block
             it = body.find_closest_addr(try_start)
             while it.is_expr():
@@ -284,7 +306,7 @@ class HexraysRebuildSEHHook(ida_hexrays.Hexrays_Hooks):
             del insn_map[try_start]
 
         if insn_map:
-            raise Exception('Failed to find all try blocks')
+            error('Failed to find all try blocks')
 
     def annotate_seh(self, cfunc):
         ccode = cfunc.get_pseudocode()
