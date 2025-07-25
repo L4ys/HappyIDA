@@ -3,6 +3,8 @@ import ida_hexrays
 import ida_kernwin
 import ida_tryblks
 import ida_range
+import re
+
 from ida_happy.miscutils import info, error
 
 class HexraysRebuildSEHHook(ida_hexrays.Hexrays_Hooks):
@@ -177,6 +179,9 @@ class HexraysRebuildSEHHook(ida_hexrays.Hexrays_Hooks):
 
             cur_insn = it.cinsn
             cif = cur_insn.cif
+
+            # transform: if (...) { A... } else { B... }
+            # into: if (...) { A... } B...
             # TODO: we *should* consider the inverted case (if (![0x41414141]){...})
             # if else branch exists, move the contents (contains try, and maybe other blocks) out of the if block
             if cif.ielse:
@@ -213,8 +218,9 @@ class HexraysRebuildSEHHook(ida_hexrays.Hexrays_Hooks):
             cur_insn.swap(insn)
             cur_insn.ea = eh_start
 
+            # NOTE: we cannot set ea to arbitrary insn: cif_t requires it.ea == it.cif.expr.ea
             # workaround for `if ([0x41414141]) break;`
-            cur_insn.cblock[0].ea = eh_start
+            # cur_insn.cblock[0].ea = eh_start # causing INTERR 50683
 
             # TODO: need to find another way to handle break
             # if cur_insn.cblock[0].op == idaapi.cit_break:
@@ -323,4 +329,13 @@ class HexraysRebuildSEHHook(ida_hexrays.Hexrays_Hooks):
             elif insn.op == ida_hexrays.cit_block and insn.ea in eh_set:
                 try_insn = cfunc.treeitems[i].cinsn
                 x, y = cfunc.find_item_coords(try_insn)
-                ccode[y].line = ccode[y].line.replace('{', '__except(...) {')
+                if '{' in ccode[y].line:
+                    ccode[y].line = ccode[y].line.replace('{', '__except(...) {')
+                else:
+                    # workaround to handle oneline return & break (maybe continue?)
+                    # since it will not contain the `{ ... }` syntax
+                    matched = re.match('(.*)(return|break|continue)(.*)', ccode[y].line)
+                    if not matched:
+                        error('failed to find exception code block')
+                        continue
+                    ccode[y].line = matched[1] + '__except(...) { ' + matched[2] + matched[3] + ' }'
