@@ -37,13 +37,36 @@ class HexraysLabelNameSyncHook(ida_hexrays.Hexrays_Hooks):
                 break
         else:
             error('Unable to find the selected ctree node')
-            return HandleStatus.FAILED
+            return HandleStatus.NOT_HANDLED
 
         func_ea = fcall.x.obj_ea
-        tif = ida_typeinf.tinfo_t()
-        if not idaapi.get_tinfo(tif, func_ea):
-            error(f'Failed to retrieve the real function type for {hex(func_ea)}')
-            return HandleStatus.FAILED
+
+        # TODO: multiple places use the same code snippet to fetch function info, consider merging them
+        # function pointer call (not IAT functions)
+        if func_ea == idaapi.BADADDR:
+            if fcall.x.op != idaapi.cot_var:
+                error('Unexpected function call')
+                return HandleStatus.FAILED
+
+            tif = fcall.x.v.getv().tif
+        else:
+            # NOTE: when working with large IDBs,
+            # we often can't get type information without decompiling functions first.
+            func = idaapi.get_func(func_ea)
+            ida_hexrays.decompile_func(func)
+
+            tif = ida_typeinf.tinfo_t()
+            if not idaapi.get_tinfo(tif, func_ea):
+                error(f'Failed to retrieve the function type for {hex(func_ea)}')
+                return HandleStatus.FAILED
+
+        # handle function pointer (IAT function call)
+        if tif.is_funcptr():
+            pi = ida_typeinf.ptr_type_data_t()
+            if not tif.get_ptr_details(pi):
+                error(f'Failed to retrieve the function pointer type for {hex(func_ea)}')
+                return HandleStatus.FAILED
+            tif = pi.obj_type
 
         func_data = ida_typeinf.func_type_data_t()
         if not tif.get_func_details(func_data):
