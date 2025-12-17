@@ -61,5 +61,5 @@ class HexraysFuncNavigateHook(ida_hexrays.Hexrays_Hooks):
                             return HandleStatus.HANDLED
                     else:
                         error("No close matches for '%s'" % name)
-                        return HandleStatus.FAILED
+                        return HandleStatus.NOT_HANDLED
         return HandleStatus.NOT_HANDLED
