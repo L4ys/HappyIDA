@@ -1,6 +1,7 @@
 import idaapi
 import ida_hexrays
 import ida_lines
+import ida_typeinf
 from ida_happy.miscutils import tag_text
 
 class HexraysParamLabelHook(ida_hexrays.Hexrays_Hooks):
@@ -22,7 +23,7 @@ class HexraysParamLabelHook(ida_hexrays.Hexrays_Hooks):
                             #TODO: build known helper dictionary
                             pass
                         else:
-                            args = self.get_func_params(ci.e.x)
+                            args = self.get_func_params(ci.e)
                             if not args:
                                 continue
 
@@ -46,20 +47,29 @@ class HexraysParamLabelHook(ida_hexrays.Hexrays_Hooks):
                     tagged = tag_text(label, index)
                     sl.line = sl.line.replace(item, tagged + ": " + item)
 
-    def get_func_params(self, f):
-        tinfo = f.type
-        func_data = idaapi.func_type_data_t()
+    def get_func_params(self, fcall):
+        func_ea = fcall.x.obj_ea
 
-        if tinfo.is_funcptr():
-            func_type = tinfo.get_pointed_object()
-        elif tinfo.is_func():
-            func_type = tinfo
+        # function pointer call (not IAT functions)
+        if func_ea == idaapi.BADADDR:
+            if fcall.x.op != idaapi.cot_var:
+                return None
+
+            tif = fcall.x.v.getv().tif
         else:
+            tif = ida_typeinf.tinfo_t()
+            if not idaapi.get_tinfo(tif, func_ea):
+                return None
+
+        # handle function pointer (IAT function call)
+        if tif.is_funcptr():
+            pi = ida_typeinf.ptr_type_data_t()
+            if not tif.get_ptr_details(pi):
+                return None
+            tif = pi.obj_type
+
+        func_data = ida_typeinf.func_type_data_t()
+        if not tif.get_func_details(func_data):
             return None
 
-        assert(func_type.is_func())
-        func_type.get_func_details(func_data)
-
         return func_data
-
-
