@@ -433,9 +433,11 @@ class HexraysRebuildSEHHook(ida_hexrays.Hexrays_Hooks):
         for i in range(len(cfunc.treeitems)):
             insn = cfunc.treeitems[i]
             if insn.op == ida_hexrays.cit_block and insn.ea in try_set:
-                # avoid the case when both if/else/for/while/do block and try block occupy the same address
+                # avoid the case when:
+                # - both if/else/for/while/do block and try block occupy the same address
+                # - the try block is the outermost block of the function
                 pit = cfunc.body.find_parent_of(insn)
-                if pit and pit.cinsn.op != ida_hexrays.cit_block:
+                if not pit or pit.cinsn.op != ida_hexrays.cit_block:
                     continue
 
                 try_insn = insn.cinsn
