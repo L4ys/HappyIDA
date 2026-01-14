@@ -102,9 +102,12 @@ It shines when a debug string exposes a function/variable name you want to reuse
 ### Copy / Paste Type 
 
 
-### SEH Highlight
+### SEH Highlight and Rebuild
 
-IDA already understands C++ try/catch, but SEH often decompiles without the missing `__except` block. HappyIDA highlights SEH `__try` regions in the pseudocode and rebuilds the corresponding `__except(...)` so the flow is visible again.
+IDA already understands C++ try/catch, but SEH often decompiles without the missing `__except` block.
+
+- Highlight: SEH `__try` regions are colored in pseudocode. Highlight authored by [angelboy](https://github.com/scwuaptx).
+- Rebuild (experimental): Injects the missing `__except(...)` to make the SEH flow visible again. Use with caution.
 
 Example output after rebuild:
 ```
@@ -121,6 +124,7 @@ int __cdecl sub_401160(int a1)
 ![SEH](images/SEH.png)
 
 You can toggle SEH highlighting from the pseudocode context menu (right-click).
+
 ![Toggle SEH](images/ToggleSEH.png)
 
 Highlight color is set in `ida_happy/modules/seh/highlight.py` via `bgcolor`, tweak it if you want a different tint.
