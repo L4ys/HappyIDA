@@ -54,6 +54,16 @@ HappyIDA/
 | Rust String Pretty Print | Open a Rust binary – strings automatically colorized in Hex‑Rays. |
 | SEH Highlight | SEH blocks are visually highlighted; right‑click → Rebuild SEH. |
 
+### Parameter labeling
+
+Swift‑style labels are injected directly into call sites so argument intent is clear without jumping to the prototype.
+
+No more memorizing parameters or bouncing back and forth.
+
+Labels stay out of the way when the argument name and type already match the parameter.
+
+![Parameter labeling](images/ParameterLabeling.png)
+
 ## License
 
 Licensed under the GPL license. See LICENSE for details.
