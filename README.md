@@ -1,14 +1,13 @@
 # HappyIDA
 Make your IDA Happy will also make you Happy!
 
-HappyIDA is an IDAPython plugin that adds a set of convenience hooks and UI helpers to the Hex‑Rays decompiler.
-It offers multiple functionalities:
+HappyIDA is an IDAPython plugin that adds a set of convenience utilities to the Hex‑Rays decompiler. It offers multiple functionalities:
 
-- Function parameter labeling – Swift‑style labels, rename / type edits at the call site.
-- Clipboard helpers – copy / paste names, types, and assign types directly from the clipboard.
-- Function navigation – double‑click on a vtable name to jump or search for the matching function.
-- Try catch block support (SEH) – visual highlights and try...catch clause rebuild support.
-- Rust string handling – automatically pretty‑prints Rust strings in decompiled pseudocode.
+- **Function parameter labeling** – Swift‑style labels, rename / type edits at the call site.
+- **Clipboard helpers** – copy / paste names, types, and assign types directly from the clipboard.
+- **SEH try/catch block support** – visual highlights and reconstruct try...catch clause in pseudocode view.
+- **Function navigation** – double‑click on a vtable name to jump or search for the matching function.
+- **Rust string prettifier** – automatically pretty‑prints Rust strings in decompiled pseudocode.
 
 ## Installation
 
@@ -49,8 +48,8 @@ HappyIDA/
 |--------|----------------|
 | argument_labeler | Adds Swift‑style parameter labels, rename and retype directly at call sites. |
 | func_navigate | Double‑click vtable name → jump or search for matching function. |
-| rust_string | Detects Rust binaries and pretty‑prints string literals in pseudocode. |
-| seh | Highlights structured exception handling blocks and rebuilds SEH try catch clause. |
+| rust_string | Detects Rust binaries and pretty‑prints string literals in pseudocode view. |
+| seh | Highlights structured exception handling blocks and rebuilds SEH try catch clause in pseudocode view. |
 
 ## Features & Usage
 
@@ -63,7 +62,7 @@ HappyIDA/
 | Navigate Functions | Double‑click on a vtable entry or member pointer in pseudocode. |
 | Rust String Pretty Print | Rust strings will be correctly printed in Hex‑Rays. |
 | SEH Highlight | SEH blocks are visually highlighted. |
-| Rebuild SEH | Rebuild SEH to reconstruct try/except blocks. |
+| Rebuild SEH | Rebuild SEH to reconstruct try/except blocks in pseudocode view. |
 
 ### Parameter labeling
 
@@ -77,13 +76,14 @@ Labels stay out of the way when the argument name and type already match the par
 
 ### Edit Parameter
 
-Use `N` to argument rename or `Y` to set argument type while the cursor is on a label. HappyIDA routes those actions to the function parameter instead of the call-site variable.
+When the cursor is on a label, use `N` to rename an argument or `Y` to set an argument type. This directly modifies the function parameter's name and type without needing to navigate into the function definition or manually modify it in function type.
+
+![Edit Parameter](images/EditParameter.gif)
 
 ### Sync Parameter
 
 Double-click a label to sync the parameter name to the argument, or double-click an argument name to sync it back into an parameter. The label hides itself once the argument already matches the parameter name and type.
 
-![Edit Parameter](images/EditParameter.gif)
 
 ![PropagateNameBack](images/PropagateNameBack.gif)
 
@@ -111,25 +111,14 @@ Press `E` on a highlighted variable to open IDA's type editor for that local. Us
 
 ![Edit Type](images/EditType.gif)
 
-### SEH Highlight and Rebuild
+### SEH Rebuild and Highlight
 
-IDA already understands C++ try/catch, but SEH often decompiles without the missing `__except` block.
+IDA already can annotate Windows Structured Exception Handling (SEH) try/except blocks in assembly, but is still unable to produce the actual `__try` and `__except` blocks in decompilation view. Here we add some magic to make it work.
 
+- Rebuild (experimental): Reconstructs missing `__try {} __except(...) {}` structures by microcode manipulation and ctree rewriting. This feature is currently in beta; please use it with caution.
 - Highlight: SEH `__try` regions are colored in pseudocode. Highlight authored by [angelboy](https://github.com/scwuaptx).
-- Rebuild (experimental): Injects the missing `__except(...)` to make the SEH flow visible again. Use with caution.
 
 Example output after rebuild:
-```
-int __cdecl sub_401160(int a1)
-{
-  __try {
-    if ( !a1 )
-      RaiseException(dwExceptionCode: 0xE0FFEE00, dwExceptionFlags: 0, nNumberOfArguments: 0, lpArguments: 0);
-  }
-  __except(...) { return -1; }
-  return 1;
-}
-```
 ![SEH](images/SEH.png)
 
 You can toggle SEH highlighting from the pseudocode context menu (right-click).
