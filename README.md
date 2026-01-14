@@ -79,15 +79,15 @@ Labels stay out of the way when the argument name and type already match the par
 
 Use IDA's native `N` (rename) or `Y` (set type) while the cursor is on a label. HappyIDA routes those actions to the function parameter instead of the call-site variable.
 
-Double-click a label to push the parameter name down to the argument. The label hides itself once the argument already matches the parameter name and type.
+Double-click a label to sync the parameter name down to the argument. The label hides itself once the argument already matches the parameter name and type.
 
 ![Edit Parameter](images/EditParameter.gif)
 
-Bonus: double-click an argument name to push it back into an unknown function parameter.
+Bonus: double-click an argument name to sync that name back into an unknown function parameter.
 
 ![PropagateNameBack](images/PropagateNameBack.gif)
 
-Bonus: double-click a type cast to push the parameter type down to the argument when they differ. Type sync follows the same flow as name sync.
+Bonus: double-click a type cast to sync the parameter type down to the argument when they differ. Type sync follows the same flow as name sync.
 
 ![Propagate Type](images/PropagateType.gif)
 
