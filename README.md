@@ -144,6 +144,13 @@ Double-click a vtable entry or member pointer in pseudocode to jump to the targe
 
 ![Function Nav](images/FunctionNav.gif)
 
+## Credits
+- [NiNi](https://github.com/terrynini) 
+- [HexRabbit](https://github.com/HexRabbit)
+- [Angelboy](https://github.com/scwuaptx)
+
+Special thanks to [patois](https://github.com/patois) for developing [HRDevHelper](https://github.com/patois/HRDevHelper), which was instrumental in the development of the SEH rebuilder feature.
+
 ## License
 
 Licensed under the GPL license. See LICENSE for details.
