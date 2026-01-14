@@ -56,13 +56,14 @@ HappyIDA/
 
 | Feature | How to use |
 |---------|------------|
-| Copy / Paste Name | happyida:hx_copyname (copy) / happyida:hx_pastename (paste). |
-| Copy / Paste Type | happyida:hx_copytype / happyida:hx_pastetype. |
+| Copy / Paste Name | C / V for copy and paste name. |
+| Copy / Paste Type | Ctrl-Alt-C / Ctrl-Alt-V for copy and paste type. |
 | Edit Local Type | Press E on a highlighted variable to open IDA's type editor for that local. |
-| Edit Parameter | Press Y in a function call when the cursor is on an argument. Choose Rename or Set Type. |
-| Navigate Functions | Double-click on a vtable entry or member pointer in pseudocode. |
-| Rust String Pretty Print | Open a Rust binary – strings automatically colorized in Hex-Rays. |
-| SEH Highlight | SEH blocks are visually highlighted; right-click → Rebuild SEH. |
+| Edit/Sync Parameter | Press N (rename) or Y (set type) on an argument in a call; double-click labels/args to sync names, or a cast to sync types. |
+| Navigate Functions | Double‑click on a vtable entry or member pointer in pseudocode. |
+| Rust String Pretty Print | Rust strings will be correctly printed in Hex‑Rays. |
+| SEH Highlight | SEH blocks are visually highlighted. |
+| Rebuild SEH | Rebuild SEH to reconstruct try/except blocks. |
 
 ### Parameter labeling
 
@@ -76,23 +77,23 @@ Labels stay out of the way when the argument name and type already match the par
 
 ### Edit Parameter
 
-Use IDA's native `N` (rename) or `Y` (set type) while the cursor is on a label. HappyIDA routes those actions to the function parameter instead of the call-site variable.
+Use `N` to argument rename or `Y` to set argument type while the cursor is on a label. HappyIDA routes those actions to the function parameter instead of the call-site variable.
 
-Double-click a label to sync the parameter name down to the argument. The label hides itself once the argument already matches the parameter name and type.
+### Sync Parameter
+
+Double-click a label to sync the parameter name to the argument, or double-click an argument name to sync it back into an parameter. The label hides itself once the argument already matches the parameter name and type.
 
 ![Edit Parameter](images/EditParameter.gif)
 
-Bonus: double-click an argument name to sync that name back into an unknown function parameter.
-
 ![PropagateNameBack](images/PropagateNameBack.gif)
 
-Bonus: double-click a type cast to sync the parameter type down to the argument when they differ. Type sync follows the same flow as name sync.
+Bonus: double-click a type cast to sync the parameter type to the argument when they differ. Type sync follows the same flow as name sync.
 
 ![Propagate Type](images/PropagateType.gif)
 
 ### Copy / Paste Name
 
-Press `C` (`happyida:hx_copyname`) to grab the highlighted identifier to the system clipboard, then press `V` (`happyida:hx_pastename`) to rename the current variable or function to that value.
+Press `C` to grab the highlighted identifier to the system clipboard, then press `V` to rename the current variable or function to that value.
 
 It shines when a debug string exposes a function/variable name you want to reuse, or when diffing two IDA instances side by side. Copy in one window and paste-rename in the other.
 
@@ -100,7 +101,7 @@ It shines when a debug string exposes a function/variable name you want to reuse
 
 ### Copy / Paste Type 
 
-Works like Copy / Paste Name, but for types. Press `Ctrl+Alt+C` (`happyida:hx_copytype`) to copy the type of the highlighted function, variable, or member and store it as text in your system clipboard. Press `Ctrl+Alt+V` (`happyida:hx_pastetype`) to apply that type to the item under your cursor. Since it re-parses the string from the clipboard, you can also copy any text that can be parsed as a type from Hex-Rays output and paste it back.
+Works like Copy / Paste Name, but for types. Press `Ctrl+Alt+C` to copy the type of the highlighted function, variable, or member and store it as text in your system clipboard. Press `Ctrl+Alt+V` to apply that type to the item under your cursor. Since it re-parses the string from the clipboard, you can also copy any text that can be parsed as a type from Hex-Rays output and paste it back.
 
 ![Paste Type](images/PasteType.gif)
 
