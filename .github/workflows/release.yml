@@ -1,0 +1,30 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Create release zip
+        run: |
+          mkdir HappyIDA
+          cp -r ida_happy HappyIDA/
+          cp ida-plugin.json HappyIDA/
+          cp main.py HappyIDA/
+          zip -r HappyIDA.zip HappyIDA
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: HappyIDA.zip
+          generate_release_notes: true
