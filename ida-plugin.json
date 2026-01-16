@@ -2,18 +2,12 @@
   "IDAMetadataDescriptorVersion": 1,
   "plugin": {
     "name": "HappyIDA",
-    "entryPoint": "main.py",
-    "idaVersions": ">=9.0",
-    "categories": ["decompilation"],
-    "keywords": [
-      "decompiler",
-      "parameter label",
-      "SEH"
-    ],
-    "urls": {
-      "repository": "https://github.com/HappyIDA/HappyIDA"
-    },
+    "description" : "Make your IDA Happy!",
     "authors": [
+      {
+        "name": "HappyIDA Team",
+        "email": ""
+      },
       {
         "name": "NiNi",
         "email": "nini@undefined.zip"
@@ -27,8 +21,33 @@
         "email": "scwuaptx@gmail.com"
       }
     ],
-    "description" : "Make your IDA Happy!",
     "license": "GPL-3.0",
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "entryPoint": "main.py",
+    "idaVersions": ">=9.0",
+    "categories": ["decompilation"],
+    "keywords": [
+      "decompiler",
+      "parameter label",
+      "SEH"
+    ],
+    "urls": {
+      "repository": "https://github.com/HappyIDA/HappyIDA"
+    },
+    "pythonDependencies": [
+      "ida-settings==3.3.0"
+    ],
+    "settings": [
+      {
+        "key": "seh_bgcolor",
+        "type": "string",
+        "default": "#8FE0F8",
+        "name": "SEH Highlight Background Color",
+        "documentation": "The background color of the SEH highlight. Format: #RRGGBB",
+        "validation_pattern": "#[0-9A-Fa-f]{6}",
+        "prompt": false,
+        "required": true
+      }
+    ]
   }
 }

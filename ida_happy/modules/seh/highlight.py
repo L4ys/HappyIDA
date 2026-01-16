@@ -4,6 +4,7 @@ import ida_hexrays
 import ida_kernwin
 import ida_tryblks
 import ida_range
+from ida_settings import get_current_plugin_setting
 from ida_happy.miscutils import info
 
 class HexraysMarkSEHHook(ida_hexrays.Hexrays_Hooks):
@@ -85,7 +86,7 @@ class HexraysMarkSEHHook(ida_hexrays.Hexrays_Hooks):
                 ida_kernwin.jumpto(selected_address)
 
         self.enable = self.is_pe_binary()
-        self.bgcolor = bgcolor
+        self.bgcolor = int(get_current_plugin_setting("seh_bgcolor")[1:], 16)
 
         if self.enable:
             self.actions = [
