@@ -99,6 +99,7 @@ HappyIDA/
 
 | Feature | How to use |
 |---------|------------|
+| Parameter Labeling | Swift‑style labels at call sites. Press `` ` `` to toggle labels on/off. |
 | Copy / Paste Name | C / V for copy and paste name. |
 | Copy / Paste Type | Ctrl-Alt-C / Ctrl-Alt-V for copy and paste type. |
 | Copy Address | W to copy current address. |
@@ -116,6 +117,8 @@ Swift‑style labels are injected directly into call sites so argument intent is
 No more memorizing parameters or bouncing back and forth.
 
 Labels stay out of the way when the argument name and type already match the parameter.
+
+Press `` ` `` to toggle parameter labels on or off in the pseudocode view.
 
 ![Parameter labeling](images/ParameterLabeling.png)
 
