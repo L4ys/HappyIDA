@@ -329,29 +329,29 @@ class HexraysPasteTypeAction(idaapi.action_handler_t):
 class HexraysEditTypeAction(idaapi.action_handler_t):
     ACTION_NAME = "happyida:hx_edittype"
 
+    # internal subclass only for triggering the action
+    class menu_action_handler_t(idaapi.action_handler_t):
+        ACTION_NAME = "happyida:hx_doedittype"
+
+        def __init__(self):
+            idaapi.action_handler_t.__init__(self)
+            self.ordinal = 0
+
+        def activate(self, ctx):
+            ida_kernwin.open_loctypes_window(self.ordinal)
+            idautils.ProcessUiActions("TilEditType")
+
+            return 1
+
+        def update(self, ctx):
+            return idaapi.AST_ENABLE_ALWAYS
+        
     def __init__(self):
         super().__init__()
 
-        # internal subclass only for triggering the action
-        class menu_action_handler_t(idaapi.action_handler_t):
-            ACTION_NAME = "happyida:hx_doedittype"
-
-            def __init__(self):
-                idaapi.action_handler_t.__init__(self)
-                self.ordinal = 0
-
-            def activate(self, ctx):
-                ida_kernwin.open_loctypes_window(self.ordinal)
-                idautils.ProcessUiActions("TilEditType")
-
-                return 1
-
-            def update(self, ctx):
-                return idaapi.AST_ENABLE_ALWAYS
-
         # ugly hack to make it work
-        self.handler = menu_action_handler_t()
-        self.action = idaapi.action_desc_t(menu_action_handler_t.ACTION_NAME, "Really do edit", self.handler, None, None, 0x10)
+        self.handler = self.menu_action_handler_t()
+        self.action = idaapi.action_desc_t(self.menu_action_handler_t.ACTION_NAME, "Really do edit", self.handler, None, None, 0x10)
         idaapi.register_action(self.action)
 
     def __del__(self):
@@ -414,7 +414,7 @@ class HexraysEditTypeAction(idaapi.action_handler_t):
             ```
             """
             self.handler.ordinal = ordinal
-            idautils.ProcessUiActions(menu_action_handler_t.ACTION_NAME)
+            idautils.ProcessUiActions(self.menu_action_handler_t.ACTION_NAME)
 
     def update(self, ctx):
         if ctx.widget_type == ida_kernwin.BWN_PSEUDOCODE:
