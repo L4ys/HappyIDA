@@ -198,7 +198,13 @@ class HexraysCopyTypeAction(idaapi.action_handler_t):
         vdui = ida_hexrays.get_widget_vdui(ctx.widget)
         item = vdui.item
         if not item.is_citem():
-            return 0
+            if vdui.item.l:
+                type_name = vdui.item.l.tif.dstr()
+                copy_to_clip(type_name)
+                info(f"{type_name} has been copied to clipboard")
+                return 1
+            else:
+                return 0
 
         if not item.it.is_expr():
             error("No variable under cursor or not a valid lvar item.")
