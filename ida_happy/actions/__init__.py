@@ -253,7 +253,7 @@ class HexraysPasteTypeAction(idaapi.action_handler_t):
         item = vdui.item
         if not item.is_citem():
             if vdui.item.l:
-                self.assign_type_to_lvar(vdui, vdui.item.l)
+                return self.assign_type_to_lvar(vdui, vdui.item.l)
             else:
                 return 0
 
