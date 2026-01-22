@@ -246,7 +246,10 @@ class HexraysPasteTypeAction(idaapi.action_handler_t):
 
         item = vdui.item
         if not item.is_citem():
-            return 0
+            if vdui.item.l:
+                self.assign_type_to_lvar(vdui, vdui.item.l)
+            else:
+                return 0
 
         if not item.it.is_expr():
             error("No variable under cursor or not a valid lvar item.")
