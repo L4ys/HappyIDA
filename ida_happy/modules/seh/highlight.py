@@ -133,6 +133,7 @@ class HexraysMarkSEHHook(ida_hexrays.Hexrays_Hooks):
             for char_idx in range(len(sl.line)):
                 # colorize SEH try block
                 if cfunc.get_line_item(sl.line, char_idx, True, None, ci, None) \
+                   and ci.it != None \
                    and len(self.get_seh(ci.it.ea, tbks)) > 0 \
                    and ci.it.op != ida_hexrays.cot_num:
                     sl.bgcolor = self.bgcolor

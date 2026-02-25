@@ -40,7 +40,7 @@ class HexraysParamLabelHook(ida_hexrays.Hexrays_Hooks):
             sl = ccode[line_idx]
             for char_idx in range(len(sl.line)):
                 if cf.get_line_item(sl.line, char_idx, True, None, ci, None):
-                    if ci.it.is_expr() and ci.e.op == ida_hexrays.cot_call:
+                    if ci.it and ci.it.is_expr() and ci.e.op == ida_hexrays.cot_call:
                         if ci.e.x.op == ida_hexrays.cot_helper:
                             #TODO: build known helper dictionary
                             pass
